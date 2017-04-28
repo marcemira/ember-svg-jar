@@ -2,7 +2,6 @@
 
 # compiled output
 /lib
-/public/assets
 /dist
 /tmp
 
