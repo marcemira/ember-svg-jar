@@ -69,8 +69,7 @@ module.exports = {
   included(app) {
     this._super.included.apply(this, arguments);
 
-    // see: https://github.com/ember-cli/ember-cli/issues/3718
-    if (typeof app.import !== 'function' && app.app) {
+    if (typeof app.options !== 'object' && app.app) {
       // eslint-disable-next-line no-param-reassign
       app = app.app;
     }
