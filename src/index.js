@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
+const merge = require('merge');
 const Funnel = require('broccoli-funnel');
 const MergeTrees = require('broccoli-merge-trees');
 const SVGOptimizer = require('broccoli-svg-optimizer');
@@ -66,16 +67,15 @@ module.exports = {
     return false;
   },
 
-  included(app) {
+  included(app, parentAddon) {
     this._super.included.apply(this, arguments);
 
-    // see: https://github.com/ember-cli/ember-cli/issues/3718
-    if (typeof app.import !== 'function' && app.app) {
-      // eslint-disable-next-line no-param-reassign
-      app = app.app;
-    }
+    var options = (this.app && this.app.options && this.app.options.svgJar) || {};
+    var parentOption = (this.parent && this.parent.app && this.parent.app.options && this.parent.app.options.svgJar) || {};
 
-    this.svgJarOptions = buildOptions(app.options.svgJar, app.env);
+    merge(options, parentOption);
+
+    this.svgJarOptions = buildOptions(options, app.env);
     validateOptions(this.svgJarOptions);
   },
 
@@ -113,7 +113,9 @@ module.exports = {
 
     if (type === 'body' && includeLoader) {
       return symbolsLoaderScript
-        .replace('{{FILE_PATH}}', this.optionFor('symbol', 'outputFile'));
+        .replace('{{FILE_PATH}}', this.optionFor('symbol', 'outputFile'))
+        .replace('{{LOADER_LOCATION}}', this.optionFor('symbol', 'loaderLocation'))
+        .replace('{{LOADER_LOCATION_ENABLED}}', this.optionFor('symbol', 'loaderLocationEnabled'));
     }
 
     return '';
